@@ -10,7 +10,6 @@ import service.parse.service.ParseService;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,12 +19,14 @@ import static constant.Constants.*;
 public class JSoupParseService implements ParseService {
 
     @Override
-    public String parse(String url, String category) {
-        Document listPageDocument = getDocumentByUrl(url);
+    public String parse(String url, String category, Map<String, String> cookies) throws IOException {
+        Document listPageDocument = getDocumentByUrl(url, cookies);
         List<String> goodsListURLs = createListOfGoodsURLs(listPageDocument);
-        List<Document> goodsDocumentList = createListOfGoodsDocuments(goodsListURLs);
+        List<Document> goodsDocumentList = loadListOfGoodsDocuments(goodsListURLs, cookies);
         List<Good> goodList = mapGoodDocumentListToEntityList(goodsDocumentList, category);
-        List<Good> goodListWithDiscount = goodList.stream().filter(Good::isDiscount).collect(Collectors.toList());
+        List<Good> goodListWithDiscount = goodList.stream()
+                .filter(Good::isDiscount)
+                .collect(Collectors.toList());
         return generateCSV(goodListWithDiscount);
     }
 
@@ -76,11 +77,11 @@ public class JSoupParseService implements ParseService {
         return document.getElementsByClass(elementName).text();
     }
 
-    private List<Document> createListOfGoodsDocuments(List<String> goodsListURLs) {
+    private List<Document> loadListOfGoodsDocuments(List<String> goodsListURLs, Map<String, String> cookies) throws IOException {
         List<Document> documentList = new ArrayList<>();
         for (String url : goodsListURLs) {
             Document document;
-            document = getDocumentByUrl(url);
+            document = getDocumentByUrl(url, cookies);
             if (document != null) {
                 documentList.add(document);
             }
@@ -96,20 +97,11 @@ public class JSoupParseService implements ParseService {
         return urlList;
     }
 
-    private Document getDocumentByUrl(String url) {
-        Document doc = null;
-        Map<String, String> cookies = new HashMap<>();
-        cookies.put("gdpr_permission_given", "1");
-        cookies.put("_cmuid", "0e41fc62-d334-4f10-b521-25ab801ecd4f");
-        cookies.put("datadome", "datadome\t8J2j.mCF1GPkj8n4k5sBtaq4ZdEgCZY~9kdcr.SnzrGPnHV-mvhgio0DH~MntVpJWXsEyQ8BGmbV2j~hQLEPrUiVYegCTHSDwa_Hb_TCcE");
-
-        try {
-            doc = Jsoup.connect(url)
-                    .cookies(cookies)
-                    .get();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private Document getDocumentByUrl(String url, Map<String, String> cookies) throws IOException {
+        Document doc;
+        doc = Jsoup.connect(url)
+                .cookies(cookies)
+                .get();
         return doc;
     }
 }
