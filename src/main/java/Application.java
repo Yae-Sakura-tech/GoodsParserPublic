@@ -15,7 +15,6 @@ public class Application {
     private final ParseService parseService = new JSoupParseService();
 
     public void start() {
-
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(Constants.CSV_HEADER);
         Map<String, String> categoryAndUrl = configuration.getCategoryAndUrl();
@@ -33,8 +32,7 @@ public class Application {
                     break;
                 }
             }
-
         }
-        fileService.writeCSVFile(new File("file.csv"), stringBuilder.toString());
+        fileService.writeCSVFile(new File(configuration.getFilePath()), stringBuilder.toString());
     }
 }

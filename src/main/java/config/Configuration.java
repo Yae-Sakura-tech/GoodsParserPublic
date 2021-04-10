@@ -14,12 +14,18 @@ public class Configuration {
     private final Map<String, String> categoryAndUrl;
     private static Configuration instance = null;
     private final Properties property;
+    private final String filePath;
 
     private Configuration() {
         this.property = initProperty();
         this.cookies = initCookies();
         this.amountPagesToParse = initAmountPagesToParse();
         this.categoryAndUrl = initCategoryAndUrl();
+        this.filePath = initFilePath();
+    }
+
+    private String initFilePath() {
+        return property.getProperty("path");
     }
 
     private Properties initProperty() {
@@ -74,6 +80,10 @@ public class Configuration {
 
     public Map<String, String> getCategoryAndUrl() {
         return categoryAndUrl;
+    }
+
+    public String getFilePath() {
+        return filePath;
     }
 
     public static Configuration getConfiguration() {
