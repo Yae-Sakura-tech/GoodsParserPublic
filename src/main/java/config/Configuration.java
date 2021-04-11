@@ -42,9 +42,18 @@ public class Configuration {
 
     private Map<String, String> initCookies() {
         Map<String, String> cookies = new HashMap<>();
-        cookies.put("gdpr_permission_given", property.getProperty("gdpr_permission_given"));
-        cookies.put("_cmuid", property.getProperty("_cmuid"));
-        cookies.put("datadome", property.getProperty("datadome"));
+        String gdpr = property.getProperty("gdpr_permission_given");
+        String cmuid = property.getProperty("_cmuid");
+        String datadome = property.getProperty("datadome");
+        if (gdpr != null) {
+            cookies.put("gdpr_permission_given", property.getProperty("gdpr_permission_given"));
+        }
+        if (cmuid != null) {
+            cookies.put("_cmuid", property.getProperty("_cmuid"));
+        }
+        if (datadome != null) {
+            cookies.put("datadome", property.getProperty("datadome"));
+        }
         return cookies;
     }
 

@@ -20,7 +20,12 @@ public class JSoupParseService implements ParseService {
 
     @Override
     public String parse(String url, String category, Map<String, String> cookies) throws IOException {
-        Document listPageDocument = getDocumentByUrl(url, cookies);
+        Document listPageDocument;
+        if (cookies.size() == 0) {
+            listPageDocument = getDocumentByUrlWithoutCookies(url);
+        } else {
+            listPageDocument = getDocumentByUrlWithCookies(url, cookies);
+        }
         List<String> goodsListURLs = createListOfGoodsURLs(listPageDocument);
         List<Document> goodsDocumentList = loadListOfGoodsDocuments(goodsListURLs, cookies);
         List<Good> goodList = mapGoodDocumentListToEntityList(goodsDocumentList, category);
@@ -81,7 +86,11 @@ public class JSoupParseService implements ParseService {
         List<Document> documentList = new ArrayList<>();
         for (String url : goodsListURLs) {
             Document document;
-            document = getDocumentByUrl(url, cookies);
+            if (cookies.size() == 0) {
+                document = getDocumentByUrlWithoutCookies(url);
+            } else {
+                document = getDocumentByUrlWithCookies(url, cookies);
+            }
             if (document != null) {
                 documentList.add(document);
             }
@@ -97,7 +106,14 @@ public class JSoupParseService implements ParseService {
         return urlList;
     }
 
-    private Document getDocumentByUrl(String url, Map<String, String> cookies) throws IOException {
+    private Document getDocumentByUrlWithoutCookies(String url) throws IOException {
+        Document doc;
+        doc = Jsoup.connect(url)
+                .get();
+        return doc;
+    }
+
+    private Document getDocumentByUrlWithCookies(String url, Map<String, String> cookies) throws IOException {
         Document doc;
         doc = Jsoup.connect(url)
                 .cookies(cookies)
